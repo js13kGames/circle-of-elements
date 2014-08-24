@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>circle of elements</title>
+
+    <meta charset="ISO-8859-1"/>
+    <meta name="description" content="Play circle of elements, created for js13kGames competition 2014"/>
+    <meta name="author" content="Stefan Blamberg"/>
+    <meta name="keywords" content="js13kGames, HTML5, Stefan Blamberg, Games, Competition, Minimalistic"/>
+
+    <link href="style.css" type="text/css" rel="stylesheet" />
+    <script src="script.js"></script>
+</head>
+
+<body>
+    <div id="main">
+        <header>
+            <h1>circle of elements</h1>
+            <h2>created by <a target="_blanc" href="https://twitter.com/StefanBlamberg">@StefanBlamberg</a> for <a target="_blanc" href="https://twitter.com/search?q=%23js13kGames">#js13kGames</a> 2014</h2>
+        </header>
+        <div id="content">
+            <p><span id="score" width="250px">Score: 0</span> | <span id="highscore" width="250px">Highscore: 0</span></p>
+            <canvas id="game" width="500" height="500"style="border:1px solid #000000;"></canvas>
+            <script>
+                start();
+            </script>
+            <table>
+                <tr>
+                    <td onclick="move(0)">Left</td><td onclick="move(1)">Right</td><td onclick="move(2)">Up</td><td onclick="move(3)">Down</td>
+                </tr>
+            </table>
+            <p><br/><b>Hint:</b> Fire > Earth > Water > Wind > Fire<br/><br/></p>
+        </div>
+        <footer>
+            <p><a onclick="start();">Play Again!</a> | <a target="_blanc" href="http://www.games.blamberg.org/circle_of_elements/rules.html">Rules</a> | <a href="http://www.blamberg.org">blamberg.org</a></p>
+        </footer>
+    </div>
+</body>
+</html>
