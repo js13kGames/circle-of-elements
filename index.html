@@ -16,8 +16,13 @@
 <body>
     <div id="main">
         <header>
-            <h1>circle of elements</h1>
-            <h2>created by <a target="_blanc" href="https://twitter.com/StefanBlamberg">@StefanBlamberg</a> for <a target="_blanc" href="https://twitter.com/search?q=%23js13kGames">#js13kGames</a> 2014</h2>
+            <table>
+                <tr>
+                    <td><img src="src/circle_b.png" width="100px" height="100px"></td>
+                    <td><h1>circle of elements</h1>
+                    <h2>created by <a target="_blanc" href="https://twitter.com/StefanBlamberg">@StefanBlamberg</a> for <a target="_blanc" href="https://twitter.com/search?q=%23js13kGames">#js13kGames</a> 2014</h2></td>
+                </tr>
+            </table>    
         </header>
         <div id="content">
             <p><span id="score" width="250px">Score: 0</span> | <span id="highscore" width="250px">Highscore: 0</span></p>
@@ -25,7 +30,7 @@
             <script>
                 start();
             </script>
-            <table>
+            <table id="buttons">
                 <tr>
                     <td onclick="move(0)">Left</td><td onclick="move(1)">Right</td><td onclick="move(2)">Up</td><td onclick="move(3)">Down</td>
                 </tr>
