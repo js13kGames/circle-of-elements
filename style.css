@@ -11,6 +11,11 @@ header
     padding-top: 10px;
 }
 
+body
+{
+	background-color: white;
+}
+
 #main
 {
     width: 680px;
