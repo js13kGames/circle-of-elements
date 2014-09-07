@@ -11,14 +11,17 @@ var sources = { //stores file locations for pictures
 };
 
 var images = {}; //Array for loaded pictures
-var display = {}; //Array that storeswhat is shown on the fields of the game (0-8)
+var display = {}; //Array that stores what is shown on the fields of the game (0-8)
 var possible = false; //Is it possible that two elements can fight against each other
 var score = 0; //Stores the current score
 var highscore = 0; //Stores the high score (is reseted when refreshing the page)
+var lastMove;
+var lastMoveTxt = ""; //Which move was done when game over?
+var lastElement = ""; //Which element was killed
 
 function start () //beginning of the game, called from index.html file
 {  
-    setScore(); //Set the new High Score
+    document.getElementById("highscore").innerHTML = "Highscore: " + highscore; //update the displayed highscore
     score = 0; //Reset the current score
     imageLoader(); //load the images
 }
@@ -28,6 +31,7 @@ function move(dir) //react to moving (triggered when user pesses buttons in the 
     switch(dir) //0 = left; 1 = right; 2 = up; 3 = down 
     {
         case 0: //if left
+            lastMoveTxt = "left";
             for(var i = 0; i <= 8; i++) //do it for every tile starting with the top left one
             {
                 if(i%3!=0 && display[i]!=images.blanc) //if not most left (0, 3, 6) and not empty
@@ -46,6 +50,7 @@ function move(dir) //react to moving (triggered when user pesses buttons in the 
         break;
 
         case 1: //if right
+            lastMoveTxt = "right";
             for(var i = 8; i >= 0; i--) //do it for every tile starting with the bottom right one in order not to move some tiles twice because of double-checking
             {
                 if((i-2)%3!=0 && display[i]!=images.blanc) //If not most right (2, 5, 8) and not empty
@@ -63,7 +68,8 @@ function move(dir) //react to moving (triggered when user pesses buttons in the 
             }
         break;
 
-        case 2:
+        case 2: //up
+            lastMoveTxt = "up";
             for(var i = 0; i <= 8; i++) //do it for every tile starting with the top left one
             {
                 if(i>2 && display[i]!=images.blanc) //If not most top (0, 1, 2) and not empty
@@ -81,7 +87,8 @@ function move(dir) //react to moving (triggered when user pesses buttons in the 
             }
         break;
 
-        case 3:
+        case 3: //down
+            lastMoveTxt = "down";
             for(var i = 8; i >= 0; i--) //do it for every tile starting with the bottom right one in order not to move some tiles twice because of double-checking
             {
                 if(i<6 && display[i]!=images.blanc) //If not most bottom (6, 7, 8) and not empty
@@ -105,7 +112,7 @@ function move(dir) //react to moving (triggered when user pesses buttons in the 
     }
     else
     {
-        start(); //restart the game
+        setScore(); //gameover
     }
 }
 
@@ -184,8 +191,8 @@ function prepare () //start a new round
     }
     else //if there is no more free space avaiable
     {
-        alert("Game Over! Your score: " + score); //Tell the user that the game is over
-        start(); //restart the game
+        lastElement = "free space";
+        setScore(); //game Over
     }
 }
 
@@ -294,9 +301,8 @@ function updateCanvas () //Refresh the canvas
 
     var game = document.getElementById("game"); //Get the canvas
     var ctx = game.getContext("2d"); //get the context of the canvas
-    
+
     ctx.clearRect(0, 0, game.width, game.height); //Reset the canvas first
-    
     ctx.drawImage(images.background, 0, 0); //Draw the background Image
     ctx.drawImage(display[0], 50, 50); //draw every tile
     ctx.drawImage(display[1], 200, 50);
@@ -336,8 +342,23 @@ function checkWin () //check if game over
     }
     if(!(fireCheck&&waterCheck&&windCheck&&earthCheck)) //If there is not at least one of each kind
     {
-        updateCanvas(); //Show the player what the mistake was
-        alert("Game Over! Your score: " + score); //alert the players score
+        if(!fireCheck) //look which element was defeated
+        {
+            lastElement = "fire";
+        }
+        else if(!waterCheck)
+        {
+            lastElement = "water";
+        }
+        else if(!earthCheck)
+        {
+            lastElement = "earth";
+        }
+        else if(!windCheck)
+        {
+            lastElement = "wind";
+        }
+
         return false; //tell other functions that it is game over
     }
     else
@@ -346,12 +367,63 @@ function checkWin () //check if game over
     }
 }
 
-function setScore() //refresh the highscore
+function setScore()
 {
-    if(score > highscore) //If the score is greater than the highscore
-    {
-        alert("New highscore!"); //Tell the player that he/she is awesome
-        highscore = score; //set the new highscore
-        document.getElementById("highscore").innerHTML = "Highscore: " + highscore; //Show the new highscore in the html file
-    }
+	if(score > highscore) //If the new score is higher than old highscore
+	{
+		highscoreTxt = "Congratulations! You beat the highscore!"; //Tell the player that he/she is awesome
+		highscore = score; //set new highscore
+	}
+	else
+	{
+		highscoreTxt = "Highscore: " + highscore; //Tell the player how close it was
+	}
+	changeUI(6); //Show gameover Screen
+}
+
+function changeUI (id)
+{
+	var ui; //user interface
+
+	switch(id)
+	{
+		case 0: //Main Menu
+			ui = "<div style=' padding: 200px;'><p style='border: 1px solid black;' onclick='changeUI(1)'>Play</p><p style='border: 1px solid black; margin-top: 30px;' onclick='changeUI(2)'>Instructions</p><p style='border: 1px solid black; margin-top: 30px;' onclick='changeUI(5)'>About</p></div>";
+		break;
+
+		case 1: //Play Area
+			ui = "<p><span id='score' width='250px'>Score: 0</span> | <span id='highscore' width='250px'>Highscore: " + highscore + "</span></p><canvas id='game' width='500' height='500'style='border:1px solid #000000;'></canvas><table id='buttons'><tr><td onclick='move(0)'>Left</td><td onclick='move(1)'>Right</td><td onclick='move(2)'>Up</td><td onclick='move(3)'>Down</td></tr></table><p><br/><b>Hint:</b> Fire > Earth > Water > Wind > Fire<br/><br/></p>";
+			document.getElementById("content").innerHTML = ui;
+			start();
+		break;
+
+		case 2: //Rules Page 1
+			ui = "<div style='padding-top: 200px;'><p><b>Rules/Instructions</b><br><br>Goal<br><br>1. Keep at least one of each kind of element in the game<br>2. You get one score point for each battle you win (see rules below)</p><p style='margin-top: 30px;' onclick='changeUI(3)'><a>Next: How to play</a></p><p style='margin-top: 30px;' onclick='changeUI(0)'><a>Back</a></p></div>";
+		break;
+
+		case 3: //Rules Page 2
+			ui = "<div style='padding-top: 200px;'><p><b>Rules/Instructions</b><br><br>How to play:<br><br> 1. Click one of the buttons. All elements will now move by one step in this direction<br>2. The furthest elements in the respective direction will start. If an element cannot move any further because there is a wall or another element which cannot be batteled (see rules below) it will stop and be caught up by the next one behind it<br>3. After each move, a new element will spawn at a random position</p><p style='margin-top: 30px;' onclick='changeUI(2)'><a>Previous: Goal</a></p><p style='margin-top: 30px;' onclick='changeUI(4)'><a>Next: Rules</a></p><p style='margin-top: 30px;' onclick='changeUI(0)'><a>Back</a></p></div>";
+		break;
+
+		case 4: //Rules Page 3
+			ui = "<div style='padding-top: 200px;'><p><b>Rules/Instructions</b><br>Rules<br><br>1. Fire burns Earth<br>2. Earth fills in Water<br>3. Water gets even stronger through Wind<br>4. Wind blows out Fire<br>5. Same elements; Fire and Water; Earth and Wind cannot fight against each other!<br>6. You only get score points when the attacking element (the moving one) wins the fight over the defending element (the one caught up)!</p><p style='margin-top: 30px;' onclick='changeUI(3)'><a>Previous: How to play</a></p><p style='margin-top: 30px;' onclick='changeUI(0)'><a>Back</a></p></div>";
+		break;
+
+		case 5: //About
+			ui = "<div style='padding-top: 200px;'><p>Developed by Stefan Blamberg<br><br>This is my first game written in pure JavaScript without an engine.<br>Circle of Elements was created for the js13kGames Competition, which goal it is to create a game smaller than 13 kb.<br><br>The game works a bit like TicTacToe and is quiet puzzling.</p><p style='margin-top: 30px;' onclick='changeUI(0)'><a>Back</a></p></div>";
+		break;
+
+		case 6: //Game Over
+			ui = "<div style='padding-top: 200px;'><p>Game over!<br><br>Your Score: "+ score + "<br><br>" + highscoreTxt + "</p><p style='margin-top: 30px;' onclick='changeUI(7)'><a>See your mistake</a></p><p style='margin-top: 30px;' onclick='changeUI(1)'><a>Play again!</a></p><p style='margin-top: 30px;' onclick='changeUI(0)'><a>Menu</a></p></div>";
+		break;
+
+        case 7: //Show last move
+            ui = "<p><span id='score' width='250px'>Score: 0</span> | <span id='highscore' width='250px'>Highscore: " + highscore + "</span></p><canvas id='game' width='500' height='500'style='border:1px solid #000000;'></canvas><p>You lost the last <b>" + lastElement + "</b> element by moving <b>" + lastMoveTxt + "</b>!</p><p style='margin-top: 30px;' onclick='changeUI(6)'><a>Back</a></p>";
+            document.getElementById("content").innerHTML = ui;
+            updateCanvas(); //Show mistake
+            return;
+        break;
+	}
+
+	document.getElementById("content").innerHTML = ui; //Update the HTML document
 }
